@@ -7,6 +7,7 @@ Modified on May 21, 2015
 '''
 
 import sys, nltk, operator
+from nltk.stem import WordNetLemmatizer
 from qa_engine.base import QABase
 
 
@@ -19,7 +20,17 @@ def get_sentences(text):
     return sentences	
 
 def get_bow(tagged_tokens, stopwords):
-    return set([t[0].lower() for t in tagged_tokens if t[0].lower() not in stopwords])
+    wordnet_lemmatizer = WordNetLemmatizer()
+    words = [set([t[0].lower() for t in tagged_tokens if t[0].lower() not in stopwords])]
+    words = set()
+    for x in tagged_tokens:
+        if x[0].lower() not in stopwords:
+            if "VB" in x[1]:
+                words.add(wordnet_lemmatizer.lemmatize(x[0].lower(), pos='v'))
+            else:
+                words.add(wordnet_lemmatizer.lemmatize(x[0].lower(), pos='n'))
+
+    return words
 
 def find_phrase(tagged_tokens, qbow):
     for i in range(len(tagged_tokens) - 1, 0, -1):
@@ -37,10 +48,14 @@ def baseline(qtokens, sentences, stopwords):
         # A list of all the word tokens in the sentence
         sbow = get_bow(sent, stopwords)
         qbow = get_bow(qtokens, stopwords)
+
+        print(qbow)
         
         # Count the # of overlapping words between the Q and the A
         # & is the set intersection operator
         overlap = len(qbow & sbow)
+        if overlap > 0:
+            print(sbow)
         
         answers.append((overlap, sent))
         

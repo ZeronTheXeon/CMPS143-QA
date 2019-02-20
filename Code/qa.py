@@ -1,10 +1,21 @@
 from qa_engine.base import QABase
 from qa_engine.score_answers import main as score_answers
 import nltk
+from nltk.stem import WordNetLemmatizer
 
 base = __import__('baseline-stub')
 
 stopwords = set(nltk.corpus.stopwords.words("english"))
+stopwords.add("who")
+stopwords.add("what")
+stopwords.add("when")
+stopwords.add("where")
+stopwords.add("why")
+stopwords.add("'s")
+stopwords.remove("had")
+stopwords.remove("have")
+stopwords.remove("from")
+
 GRAMMAR = """
             N: {<PRP>|<NN.*>}
             V: {<V.*>}
@@ -118,21 +129,24 @@ def get_answer(question, story):
     else:
         text = story['text']
 
-    question = base.get_sentences(question_text)
+    question_sent = base.get_sentences(question_text)
 
     text = base.get_sentences(text)
 
-    answer = base.baseline(question[0], text, stopwords)
+    answer = base.baseline(question_sent[0], text, stopwords)
 
     answer_text = ""
     for (x, y) in answer:
         answer_text += (" " if x[0].isalnum() else "") + x
+    print("Difficulty: ", question['difficulty'] + "\n")
     print("Question:", question_text + "\n")
-    print("Answer:", answer_text + "\n\n")
+    print("Answer:", answer_text + "\n")
+
 
     ###     End of Your Code         ###
     answer = get_answer_phrase(question_text, answer_text)
-    return answer
+    print("Extracted Answer:", answer_text + "\n\n")
+    return answer_text
 
 
 #############################################################
@@ -162,4 +176,8 @@ def main():
 
 
 if __name__ == "__main__":
+    wordnet_lemmatizer = WordNetLemmatizer()
+    #print(wordnet_lemmatizer.lemmatize("had", pos='v'))
+    #print(wordnet_lemmatizer.lemmatize("have", pos='v'))
     main()
+
