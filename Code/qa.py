@@ -84,6 +84,33 @@ def get_answer_phrase(question, sentence):
         if len(answer_list) > 0 else sentence
     return final_answer
 
+def get_answer_sentence(question, story):
+
+    version = question["type"]
+
+    question_text = question["text"]
+
+    # prefer scheherazade
+    if "Sch" in version:
+        text = story['sch']
+    else:
+        text = story['text']
+
+    question_sent = base.get_sentences(question_text)
+
+    text = base.get_sentences(text)
+
+    answer = base.baseline(question_sent[0], text, stopwords)
+
+    answer_text = ""
+    for (x, y) in answer:
+        answer_text += (" " if x[0].isalnum() else "") + x
+    print("Difficulty: ", question['difficulty'] + "\n")
+    print("Question:", question_text + "\n")
+    print("Answer:", answer_text + "\n")
+
+    return question_text, answer_text
+
 
 def get_answer(question, story):
     """
@@ -119,34 +146,12 @@ def get_answer(question, story):
 
     """
     ###     Your Code Goes Here         ###
-    version = question["type"]
-
-    question_text = question["text"]
-
-    # prefer scheherazade
-    if "Sch" in version:
-        text = story['sch']
-    else:
-        text = story['text']
-
-    question_sent = base.get_sentences(question_text)
-
-    text = base.get_sentences(text)
-
-    answer = base.baseline(question_sent[0], text, stopwords)
-
-    answer_text = ""
-    for (x, y) in answer:
-        answer_text += (" " if x[0].isalnum() else "") + x
-    print("Difficulty: ", question['difficulty'] + "\n")
-    print("Question:", question_text + "\n")
-    print("Answer:", answer_text + "\n")
-
-
+    
     ###     End of Your Code         ###
+    question_text, answer_text = get_answer_sentence(question, story)
     answer = get_answer_phrase(question_text, answer_text)
     print("Extracted Answer:", answer_text + "\n\n")
-    return answer_text
+    return answer
 
 
 #############################################################
