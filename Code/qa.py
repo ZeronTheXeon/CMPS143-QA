@@ -42,7 +42,7 @@ def get_answer(question, story):
     ###     Your Code Goes Here         ###
     version = question["type"]
 
-    question = question["text"]
+    question_text = question["text"]
 
     text = [] 
 
@@ -51,18 +51,22 @@ def get_answer(question, story):
     else:
         text = story['sch']
 
-    question = base.get_sentences(question)
+    question = base.get_sentences(question_text)
 
-    print(text)
 
     if text is None:
         print(story["sid"])
 
-    #text = base.get_sentences(text)
+    text = base.get_sentences(text)
 
 
-    #answer = base.baseline(question[0], text, stopwords)
-    answer = " "
+    answer = base.baseline(question[0], text, stopwords)
+    
+    answer_text = " "
+    for (x, y) in answer:
+        answer_text = answer_text + " " + x
+    print(question_text + "\n")
+    print(answer_text + "\n\n")
 
 
     ###     End of Your Code         ###
