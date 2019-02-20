@@ -1,10 +1,11 @@
-
 from qa_engine.base import QABase
 from qa_engine.score_answers import main as score_answers
 import nltk
+
 base = __import__('baseline-stub')
 
 stopwords = set(nltk.corpus.stopwords.words("english"))
+
 
 def get_answer(question, story):
     """
@@ -41,7 +42,6 @@ def get_answer(question, story):
     """
     ###     Your Code Goes Here         ###
     version = question["type"]
-    
     question_text = question["text"]
 
     # prefer scheherazade
@@ -54,9 +54,8 @@ def get_answer(question, story):
 
     text = base.get_sentences(text)
 
-
     answer = base.baseline(question[0], text, stopwords)
-    
+
     answer_text = " "
     for (x, y) in answer:
         answer_text = answer_text + " " + x
@@ -64,10 +63,10 @@ def get_answer(question, story):
     print("Answer:", answer_text + "\n\n")
 
 
+
     ###     End of Your Code         ###
     answer = ""
     return answer
-
 
 
 #############################################################
@@ -85,6 +84,7 @@ def run_qa():
     QA.run()
     QA.save_answers()
 
+
 #############################################################
 
 
@@ -93,6 +93,7 @@ def main():
     # You can uncomment this next line to evaluate your
     # answers, or you can run score_answers.py
     score_answers()
+
 
 if __name__ == "__main__":
     main()
