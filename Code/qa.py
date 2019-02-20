@@ -41,7 +41,7 @@ def get_answer(question, story):
     """
     ###     Your Code Goes Here         ###
     version = question["type"]
-    
+
     question_text = question["text"]
 
     text = [] 
