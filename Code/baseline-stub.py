@@ -12,6 +12,7 @@ from qa_engine.base import QABase
 
 # The standard NLTK pipeline for POS tagging a document
 def get_sentences(text):
+
     sentences = nltk.sent_tokenize(text)
     sentences = [nltk.word_tokenize(sent) for sent in sentences]
     sentences = [nltk.pos_tag(sent) for sent in sentences]
@@ -30,12 +31,13 @@ def find_phrase(tagged_tokens, qbow):
 # qtokens: is a list of pos tagged question tokens with SW removed
 # sentences: is a list of pos tagged story sentences
 # stopwords is a set of stopwords
-def baseline(qbow, sentences, stopwords):
+def baseline(qtokens, sentences, stopwords):
     # Collect all the candidate answers
     answers = []
     for sent in sentences:
         # A list of all the word tokens in the sentence
         sbow = get_bow(sent, stopwords)
+        qbow = get_bow(qtokens, stopwords)
         
         # Count the # of overlapping words between the Q and the A
         # & is the set intersection operator
