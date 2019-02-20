@@ -44,18 +44,13 @@ def get_answer(question, story):
     
     question_text = question["text"]
 
-    text = [] 
-
-    if version is "Story":
-        text = story['text']
-    else:
+    # prefer scheherazade
+    if "Sch" in version:
         text = story['sch']
+    else:
+        text = story['text']
 
     question = base.get_sentences(question_text)
-
-
-    if text is None:
-        print(story["sid"])
 
     text = base.get_sentences(text)
 
@@ -65,8 +60,8 @@ def get_answer(question, story):
     answer_text = " "
     for (x, y) in answer:
         answer_text = answer_text + " " + x
-    print(question_text + "\n")
-    print(answer_text + "\n\n")
+    print("Question:", question_text + "\n")
+    print("Answer:", answer_text + "\n\n")
 
 
     ###     End of Your Code         ###
@@ -97,7 +92,7 @@ def main():
     run_qa()
     # You can uncomment this next line to evaluate your
     # answers, or you can run score_answers.py
-    #score_answers()
+    score_answers()
 
 if __name__ == "__main__":
     main()
