@@ -43,10 +43,6 @@ def why_filter(subtree):
 def what_filter(subtree):
     return subtree.label() == "NP" or subtree.label() == "VP" 
 
-def how_filter(subtree):
-    return subtree.label() == "JJ"
-
-
 
 
 
@@ -85,7 +81,7 @@ def get_answer_phrase(question, sentence):
         set_to_use = WHAT_PP
         filter_to_use = what_filter
 
-    
+
     answer_list = []
     print(tree)
     for subtree in tree.subtrees(filter=filter_to_use):
