@@ -28,23 +28,23 @@ GRAMMAR = """
 chunker = nltk.RegexpParser(GRAMMAR)
 lmtzr = nltk.stem.WordNetLemmatizer()
 LOC_PP = {"in", "on", "at", "to"}
-WHY_PP = {"because", "as"}
-WHAT_PP = {"the", "a"}
+WHY_PP = {"because", "as", "for", "to", "so"}
+WHAT_PP = {"the", "a", "that", "is"}
 
 
 def loc_filter(subtree):
-    return subtree.label() == "PP" or  subtree.label() == "NP"
+    return subtree.label() == "PP"
 
 
 def why_filter(subtree):
-    return subtree.label() == "N"
+    return subtree.label() == "VP"
 
 
 def what_filter(subtree):
-    return subtree.label() == "N" 
+    return subtree.label() == "NP" or subtree.label() == "VP" 
 
-def who_filter(subtree):
-    return subtree.label() == "NP"
+def how_filter(subtree):
+    return subtree.label() == "JJ"
 
 
 
@@ -66,9 +66,8 @@ def get_answer_phrase(question, sentence):
     q_toks = nltk.word_tokenize(question)
     sent_toks = nltk.word_tokenize(sentence)
     sent_pos = nltk.pos_tag(sent_toks)
-    print(sent_pos)
-    # for x in sent_pos:
-    #     x[0] = x[0].lower
+    for x in sent_pos:
+        x = (x[0].lower, x[1])
     tree = chunker.parse(sent_pos)
 
     q_toks = [word.lower() for word in q_toks]
@@ -81,13 +80,12 @@ def get_answer_phrase(question, sentence):
         # print("q_toks contains why!", q_toks)
         set_to_use = WHY_PP
         filter_to_use = why_filter
-    # elif "who" in q_toks:
-    #     filter_to_use = who_filter
     else:
         # print("else!", q_toks)
         set_to_use = WHAT_PP
         filter_to_use = what_filter
 
+    
     answer_list = []
     print(tree)
     for subtree in tree.subtrees(filter=filter_to_use):

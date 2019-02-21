@@ -48,8 +48,6 @@ def baseline(qtokens, sentences, stopwords):
         # A list of all the word tokens in the sentence
         sbow = get_bow(sent, stopwords)
         qbow = get_bow(qtokens, stopwords)
-
-        print(qbow)
         
         # Count the # of overlapping words between the Q and the A
         # & is the set intersection operator
