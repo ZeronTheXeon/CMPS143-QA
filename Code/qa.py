@@ -41,13 +41,7 @@ def why_filter(subtree):
 
 
 def what_filter(subtree):
-    return subtree.label() == "NP" or subtree.label() == "VP" 
-
-
-
-
-
-
+    return subtree.label() == "NP" or subtree.label() == "VP"
 
 
 def get_answer_phrase(question, sentence):
@@ -62,8 +56,7 @@ def get_answer_phrase(question, sentence):
     q_toks = nltk.word_tokenize(question)
     sent_toks = nltk.word_tokenize(sentence)
     sent_pos = nltk.pos_tag(sent_toks)
-    for x in sent_pos:
-        x = (x[0].lower, x[1])
+    sent_pos = [(x[0].lower(), x[1]) for x in sent_pos]
     tree = chunker.parse(sent_pos)
 
     q_toks = [word.lower() for word in q_toks]
@@ -81,7 +74,6 @@ def get_answer_phrase(question, sentence):
         set_to_use = WHAT_PP
         filter_to_use = what_filter
 
-
     answer_list = []
     print(tree)
     for subtree in tree.subtrees(filter=filter_to_use):
@@ -89,14 +81,14 @@ def get_answer_phrase(question, sentence):
         if subtree[0][0] in set_to_use:
             # print("appending", subtree[0][0][0], " as it is in set_to_use")
             answer_list.append(subtree)
-            #print("1:      ", answer_list)
+            print("1:      ", answer_list)
 
     final_answer = " ".join([token[0] for token in answer_list[0].leaves()]) \
         if len(answer_list) > 0 else sentence
-    return final_answer
+    return final_answer.strip()
+
 
 def get_answer_sentence(question, story):
-
     version = question["type"]
 
     question_text = question["text"]
@@ -157,7 +149,7 @@ def get_answer(question, story):
 
     """
     ###     Your Code Goes Here         ###
-    
+
     ###     End of Your Code         ###
     question_text, answer_text = get_answer_sentence(question, story)
 
@@ -194,7 +186,6 @@ def main():
 
 if __name__ == "__main__":
     wordnet_lemmatizer = WordNetLemmatizer()
-    #print(wordnet_lemmatizer.lemmatize("had", pos='v'))
-    #print(wordnet_lemmatizer.lemmatize("have", pos='v'))
+    # print(wordnet_lemmatizer.lemmatize("had", pos='v'))
+    # print(wordnet_lemmatizer.lemmatize("have", pos='v'))
     main()
-
