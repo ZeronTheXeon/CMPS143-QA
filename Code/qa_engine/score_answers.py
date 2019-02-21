@@ -58,7 +58,7 @@ def run_scoring(gold, pred):
     print("*************************************************************************\n")
     print("FINAL RESULTS\n\n")
 
-    print("AVERAGE RECAL =     {:.4f}".format(r))
+    print("AVERAGE RECALL =    {:.4f}".format(r))
     print("AVERAGE PRECISION = {:.4f}".format(p))
     print("AVERAGE F-MEASURE = {:.4f}".format(f))
     print("\n*************************************************************************\n")

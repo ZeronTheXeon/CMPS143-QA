@@ -1,0 +1,10 @@
+# CMPS143 W19 - QA Engine
+Team Members:
+- Filip Haltmayer (fhaltmay)
+- Sanjeet Jain (sahjain)
+
+## Notes for grader
+- Please run with evaluate set to True to receive eval
+answers.
+- All code files are in the directory Code.
+A question answering program for CMPS143-W19.

@@ -53,7 +53,8 @@ def baseline(qtokens, sentences, stopwords):
         # & is the set intersection operator
         overlap = len(qbow & sbow)
         if overlap > 0:
-            print(sbow)
+            # print(sbow)
+            pass
         
         answers.append((overlap, sent))
         

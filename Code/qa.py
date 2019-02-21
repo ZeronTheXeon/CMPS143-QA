@@ -5,17 +5,6 @@ from nltk.stem import WordNetLemmatizer
 
 base = __import__('baseline-stub')
 
-stopwords = set(nltk.corpus.stopwords.words("english"))
-stopwords.add("who")
-stopwords.add("what")
-stopwords.add("when")
-stopwords.add("where")
-stopwords.add("why")
-stopwords.add("'s")
-stopwords.remove("had")
-stopwords.remove("have")
-stopwords.remove("from")
-
 GRAMMAR = """
             N: {<PRP>|<NN.*>}
             V: {<V.*>}
@@ -30,6 +19,15 @@ lmtzr = nltk.stem.WordNetLemmatizer()
 LOC_PP = {"in", "on", "at", "to"}
 WHY_PP = {"because", "as", "for", "to", "so"}
 WHAT_PP = {"the", "a", "that", "is"}
+
+
+# AVERAGE RECAL =     0.4671
+# AVERAGE PRECISION = 0.4309
+# AVERAGE F-MEASURE = 0.4191
+
+stopwords = set(nltk.corpus.stopwords.words("english"))
+stopwords.union({"who", "what", "when", "where", "why"})
+stopwords = stopwords - LOC_PP - WHY_PP - WHAT_PP
 
 
 def loc_filter(subtree):
@@ -75,13 +73,13 @@ def get_answer_phrase(question, sentence):
         filter_to_use = what_filter
 
     answer_list = []
-    print(tree)
+    # print(tree)
     for subtree in tree.subtrees(filter=filter_to_use):
-        print(subtree)
+        # print(subtree)
         if subtree[0][0] in set_to_use:
             # print("appending", subtree[0][0][0], " as it is in set_to_use")
             answer_list.append(subtree)
-            print("1:      ", answer_list)
+            # print("1:      ", answer_list)
 
     final_answer = " ".join([token[0] for token in answer_list[0].leaves()]) \
         if len(answer_list) > 0 else sentence
@@ -108,9 +106,9 @@ def get_answer_sentence(question, story):
     answer_text = ""
     for (x, y) in answer:
         answer_text += (" " if x[0].isalnum() else "") + x
-    print("Difficulty: ", question['difficulty'] + "\n")
-    print("Question:", question_text + "\n")
-    print("Answer:", answer_text + "\n")
+    # print("Difficulty: ", question['difficulty'] + "\n")
+    # print("Question:", question_text + "\n")
+    # print("Answer:", answer_text + "\n")
 
     return question_text, answer_text
 
@@ -154,7 +152,7 @@ def get_answer(question, story):
     question_text, answer_text = get_answer_sentence(question, story)
 
     answer = get_answer_phrase(question_text, answer_text)
-    print("Extracted Answer:", answer + "\n\n")
+    # print("Extracted Answer:", answer + "\n\n")
     return answer
 
 
@@ -178,10 +176,10 @@ def run_qa(evaluate=False):
 
 
 def main():
-    run_qa(evaluate=False)
+    run_qa(evaluate=True)
     # You can uncomment this next line to evaluate your
     # answers, or you can run score_answers.py
-    score_answers()
+    # score_answers()
 
 
 if __name__ == "__main__":

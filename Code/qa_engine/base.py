@@ -10,7 +10,7 @@ ANSWER_FILE = "hw6-answers.tsv"
 STORIES_FILE = "hw6-stories.tsv"
 
 RESPONSE_FILE = "hw6-responses.tsv"
-EVAL_RESPONSE_FILE = "hw6-eval-responses.tsv"
+EVAL_RESPONSE_FILE = "hw6-responses.tsv"
 
 EVAL_QUESTIONS = "hw6-eval-questions.tsv"
 EVAL_STORIES = "hw6-eval-stories.tsv"
