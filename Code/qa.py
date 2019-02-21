@@ -33,7 +33,7 @@ WHAT_PP = {"the", "a"}
 
 
 def loc_filter(subtree):
-    return subtree.label() == "PP"
+    return subtree.label() == "PP" or  subtree.label() == "NP"
 
 
 def why_filter(subtree):
@@ -41,7 +41,17 @@ def why_filter(subtree):
 
 
 def what_filter(subtree):
-    return subtree.label() == "N" or subtree == "NP"
+    return subtree.label() == "N" 
+
+def who_filter(subtree):
+    return subtree.label() == "NP"
+
+
+
+
+
+
+
 
 
 def get_answer_phrase(question, sentence):
@@ -56,6 +66,9 @@ def get_answer_phrase(question, sentence):
     q_toks = nltk.word_tokenize(question)
     sent_toks = nltk.word_tokenize(sentence)
     sent_pos = nltk.pos_tag(sent_toks)
+    print(sent_pos)
+    # for x in sent_pos:
+    #     x[0] = x[0].lower
     tree = chunker.parse(sent_pos)
 
     q_toks = [word.lower() for word in q_toks]
@@ -68,17 +81,21 @@ def get_answer_phrase(question, sentence):
         # print("q_toks contains why!", q_toks)
         set_to_use = WHY_PP
         filter_to_use = why_filter
+    # elif "who" in q_toks:
+    #     filter_to_use = who_filter
     else:
         # print("else!", q_toks)
         set_to_use = WHAT_PP
         filter_to_use = what_filter
 
     answer_list = []
+    print(tree)
     for subtree in tree.subtrees(filter=filter_to_use):
-        # print(subtree)
-        if subtree[0][0].lower() in set_to_use:
+        print(subtree)
+        if subtree[0][0] in set_to_use:
             # print("appending", subtree[0][0][0], " as it is in set_to_use")
             answer_list.append(subtree)
+            #print("1:      ", answer_list)
 
     final_answer = " ".join([token[0] for token in answer_list[0].leaves()]) \
         if len(answer_list) > 0 else sentence
@@ -149,8 +166,9 @@ def get_answer(question, story):
     
     ###     End of Your Code         ###
     question_text, answer_text = get_answer_sentence(question, story)
+
     answer = get_answer_phrase(question_text, answer_text)
-    print("Extracted Answer:", answer_text + "\n\n")
+    print("Extracted Answer:", answer + "\n\n")
     return answer
 
 
