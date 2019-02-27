@@ -4,6 +4,8 @@ import nltk
 from nltk.stem import WordNetLemmatizer
 
 base = __import__('baseline-stub')
+depend = __import__('dependency-demo-stub')
+constit = __import__('constituency-demo-stub')
 
 GRAMMAR = """
             N: {<PRP>|<NN.*>}
@@ -28,6 +30,20 @@ WHAT_PP = {"the", "a", "that", "is"}
 stopwords = set(nltk.corpus.stopwords.words("english"))
 stopwords.union({"who", "what", "when", "where", "why"})
 stopwords = stopwords - LOC_PP - WHY_PP - WHAT_PP
+
+# These stopwords are used for the better sentene recall. Overall it drops our F stop so when 
+# we are using chunking, set the baseline call to use stopwords not stopwrods1
+stopwords1 = set(nltk.corpus.stopwords.words("english"))
+stopwords1.add("who")
+stopwords1.add("what")
+stopwords1.add("when")
+stopwords1.add("where")
+stopwords1.add("why")
+stopwords1.add("'s")
+stopwords1.remove("had")
+stopwords1.remove("have")
+stopwords1.remove("from")
+
 
 
 def loc_filter(subtree):
@@ -94,26 +110,104 @@ def get_answer_sentence(question, story):
     # prefer scheherazade
     if "Sch" in version:
         text = story['sch']
+        text_backup = story['sch']
     else:
         text = story['text']
+        text_backup = story['text']
 
+    text_backup = nltk.sent_tokenize(text_backup)
     question_sent = base.get_sentences(question_text)
 
     text = base.get_sentences(text)
 
-    answer = base.baseline(question_sent[0], text, stopwords)
+    # Use stopwords instead of stopwords1 when using chunking and not depend trees
+    answer, sent_number = base.baseline(question_sent[0], text, stopwords1)
 
     answer_text = ""
     for (x, y) in answer:
         answer_text += (" " if x[0].isalnum() else "") + x
+
     # print("Difficulty: ", question['difficulty'] + "\n")
     # print("Question:", question_text + "\n")
     # print("Answer:", answer_text + "\n")
 
-    return question_text, answer_text
+    return question_text, text_backup[sent_number], sent_number
 
 
-def get_answer(question, story):
+
+def get_dependencies(question, story, sent_num):
+
+    version = question["type"]
+    print(version)
+
+    if "Sch" in version:
+        story_dep = story['sch_dep'][sent_num]
+
+
+    else:
+        story_dep = story['story_dep'][sent_num]
+        
+
+    question_dep = question["dep"]
+
+    return question_dep, story_dep
+
+def get_constituency(question, story, sent_num):
+
+    version = question["type"]
+ 
+
+    if "Sch" in version:
+        story_con = story['sch_par'][sent_num]
+
+
+    else:
+        story_con = story['story_par'][sent_num]
+        
+
+    question_con = question["par"]
+
+    return question_con, story_con
+
+def find_answer_con(qcon, scon, question, q, s):
+    (word, rest) = question.split(maxsplit=1)
+    word = word.lower()
+    print(word)
+    print(scon)
+    if word == "who":
+        pattern = nltk.ParentedTree.fromstring("(NP)")
+        sub_pattern = nltk.ParentedTree.fromstring("(NP)")
+    elif word == "what":
+        pattern = nltk.ParentedTree.fromstring("(NP)")
+        sub_pattern = nltk.ParentedTree.fromstring("(NP)")
+    elif word == "when":
+        pattern = nltk.ParentedTree.fromstring("(VP (*) (PP))")
+        sub_pattern = nltk.ParentedTree.fromstring("(PP)")
+    elif word == "where":
+        pattern = nltk.ParentedTree.fromstring("(VP (*) (PP))")
+        sub_pattern = nltk.ParentedTree.fromstring("(PP)")
+    elif word == "why":
+        pattern = nltk.ParentedTree.fromstring("(VP (*) (PP))")
+        sub_pattern = nltk.ParentedTree.fromstring("(PP)")
+    elif word == "how":
+        pattern = nltk.ParentedTree.fromstring("(VP (*) (PP))")
+        sub_pattern = nltk.ParentedTree.fromstring("(PP)")
+   
+    sub_tree = constit.pattern_matcher(pattern, scon)
+    
+    if sub_tree == None:
+        answer = get_answer(q, s, True)
+        return answer
+
+
+    sub_tree_2 = constit.pattern_matcher(sub_pattern, sub_tree)
+    answer =  " ".join(sub_tree_2.leaves())
+    return answer
+
+
+
+
+def get_answer(question, story, fail=False):
     """
     :param question: dict
     :param story: dict
@@ -149,10 +243,22 @@ def get_answer(question, story):
     ###     Your Code Goes Here         ###
 
     ###     End of Your Code         ###
-    question_text, answer_text = get_answer_sentence(question, story)
+    question_text, answer_text, sent_number = get_answer_sentence(question, story)
 
-    answer = get_answer_phrase(question_text, answer_text)
-    # print("Extracted Answer:", answer + "\n\n")
+    
+    if fail == False:
+        qcon, scon = get_constituency(question, story, sent_number)
+        answer = find_answer_con(qcon, scon, question_text, question, story)
+
+    #part 2 with dependcy 
+    #qdep, sdep = get_dependencies(question, story, sent_number)
+    #answer = depend.find_answer(qgraph, sgraph)
+
+    if fail == True:
+        answer = get_answer_phrase(question_text, answer_text)
+   
+    
+    print("Extracted Answer:", answer + "\n\n")
     return answer
 
 
@@ -176,10 +282,10 @@ def run_qa(evaluate=False):
 
 
 def main():
-    run_qa(evaluate=True)
+    run_qa(evaluate=False)
     # You can uncomment this next line to evaluate your
     # answers, or you can run score_answers.py
-    # score_answers()
+    score_answers()
 
 
 if __name__ == "__main__":

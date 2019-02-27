@@ -36,14 +36,17 @@ def find_answer(qgraph, sgraph):
 
     for node in sgraph.nodes.values():
         #print("node[head]=", node["head"])
-        if node.get('head', None) == snode["address"]:
-            #print(node["word"], node["rel"])
+        if snode is not None:
+            if node.get('head', None) == snode["address"]:
+                #print(node["word"], node["rel"])
 
-            if node['rel'] == "nmod":
-                deps = get_dependents(node, sgraph)
-                deps = sorted(deps+[node], key=operator.itemgetter("address"))
-                
-                return " ".join(dep["word"] for dep in deps)
+                if node['rel'] == "nmod":
+                    deps = get_dependents(node, sgraph)
+                    deps = sorted(deps+[node], key=operator.itemgetter("address"))
+                    
+                    return " ".join(dep["word"] for dep in deps)
+        
+    return "NOthing"
 
 
 if __name__ == '__main__':
