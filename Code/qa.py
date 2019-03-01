@@ -3,9 +3,8 @@ from qa_engine.score_answers import main as score_answers
 import nltk
 from nltk.stem import WordNetLemmatizer
 
-base = __import__('baseline-stub')
-depend = __import__('dependency-demo-stub')
-constit = __import__('constituency-demo-stub')
+import baseline_stub as base
+import constituency_demo_stub as constit
 
 GRAMMAR = """
             N: {<PRP>|<NN.*>}
@@ -22,7 +21,6 @@ LOC_PP = {"in", "on", "at", "to"}
 WHY_PP = {"because", "as", "for", "to", "so"}
 WHAT_PP = {"the", "a", "that", "is"}
 
-
 # AVERAGE RECAL =     0.4671
 # AVERAGE PRECISION = 0.4309
 # AVERAGE F-MEASURE = 0.4191
@@ -34,16 +32,8 @@ stopwords = stopwords - LOC_PP - WHY_PP - WHAT_PP
 # These stopwords are used for the better sentene recall. Overall it drops our F stop so when 
 # we are using chunking, set the baseline call to use stopwords not stopwrods1
 stopwords1 = set(nltk.corpus.stopwords.words("english"))
-stopwords1.add("who")
-stopwords1.add("what")
-stopwords1.add("when")
-stopwords1.add("where")
-stopwords1.add("why")
-stopwords1.add("'s")
-stopwords1.remove("had")
-stopwords1.remove("have")
-stopwords1.remove("from")
-
+stopwords1.union({"who", "what", "when", "where", "why", "'s"})
+stopwords1 = stopwords1 - {"had", "have", "from"}
 
 
 def loc_filter(subtree):
@@ -134,9 +124,7 @@ def get_answer_sentence(question, story):
     return question_text, text_backup[sent_number], sent_number
 
 
-
 def get_dependencies(question, story, sent_num):
-
     version = question["type"]
     print(version)
 
@@ -146,16 +134,14 @@ def get_dependencies(question, story, sent_num):
 
     else:
         story_dep = story['story_dep'][sent_num]
-        
 
     question_dep = question["dep"]
 
     return question_dep, story_dep
 
-def get_constituency(question, story, sent_num):
 
+def get_constituency(question, story, sent_num):
     version = question["type"]
- 
 
     if "Sch" in version:
         story_con = story['sch_par'][sent_num]
@@ -163,35 +149,55 @@ def get_constituency(question, story, sent_num):
 
     else:
         story_con = story['story_par'][sent_num]
-        
 
     question_con = question["par"]
 
     return question_con, story_con
 
+
 def find_answer_con(qcon, scon, question, q, s):
     (word, rest) = question.split(maxsplit=1)
     word = word.lower()
-    print(word)
-    print(scon)
+    # print("Word is", word, "for question", question)
+    # AVERAGE RECALL =    0.4938
+    # AVERAGE PRECISION = 0.4513
+    # AVERAGE F-MEASURE = 0.4164
+    # answer = get_answer(q, s, True)
+    # return answer
+    # print("Sentence Con is", scon)
     if word == "who":
         pattern = nltk.ParentedTree.fromstring("(NP)")
         sub_pattern = nltk.ParentedTree.fromstring("(NP)")
     elif word == "what":
-        pattern = nltk.ParentedTree.fromstring("(NP)")
-        sub_pattern = nltk.ParentedTree.fromstring("(NP)")
+        pattern = nltk.ParentedTree.fromstring("(VP)")
+        sub_pattern = nltk.ParentedTree.fromstring("(VP)")
+    elif word == "did":
+        return "yes"
+    elif word == "had":
+        return "no"
     elif word == "when":
         pattern = nltk.ParentedTree.fromstring("(VP (*) (PP))")
         sub_pattern = nltk.ParentedTree.fromstring("(PP)")
     elif word == "where":
-        pattern = nltk.ParentedTree.fromstring("(VP (*) (PP))")
-        sub_pattern = nltk.ParentedTree.fromstring("(PP)")
+        # AVERAGE RECALL =    0.6739
+        # AVERAGE PRECISION = 0.4977
+        # AVERAGE F-MEASURE = 0.5282
+        # if "to" in question[:15]:
+        #     pattern = nltk.ParentedTree.fromstring("(TO (*))")
+        #     sub_pattern = nltk.ParentedTree.fromstring("(LOC)")
+        # else:
+        # if "SINV" in str(scon):
+        #     pattern = nltk.ParentedTree.fromstring("(PP)")
+        #     sub_pattern = nltk.ParentedTree.fromstring("(PP)")
+        # else:
+            pattern = nltk.ParentedTree.fromstring("(VP (*) (PP))")
+            sub_pattern = nltk.ParentedTree.fromstring("(NP)")
     elif word == "why":
-        pattern = nltk.ParentedTree.fromstring("(VP (*) (PP))")
-        sub_pattern = nltk.ParentedTree.fromstring("(PP)")
+        pattern = nltk.ParentedTree.fromstring("(SBAR)")
+        sub_pattern = nltk.ParentedTree.fromstring("(SBAR)")
     elif word == "how":
-        pattern = nltk.ParentedTree.fromstring("(VP (*) (PP))")
-        sub_pattern = nltk.ParentedTree.fromstring("(PP)")
+        pattern = nltk.ParentedTree.fromstring("(VP)")
+        sub_pattern = nltk.ParentedTree.fromstring("(RB)")
     else:
         pattern = nltk.ParentedTree.fromstring("(VP (*) (PP))")
         sub_pattern = nltk.ParentedTree.fromstring("(PP)")
@@ -204,6 +210,8 @@ def find_answer_con(qcon, scon, question, q, s):
 
     sub_tree_2 = constit.pattern_matcher(sub_pattern, sub_tree)
     if sub_tree_2 is None:
+        # print("sub_tree_2 is None for question", question, "con of", scon)
+        # sub_tree_2 = sub_tree
         answer = get_answer(q, s, True)
         return answer
 
@@ -260,7 +268,7 @@ def get_answer(question, story, fail=False):
         qcon, scon = get_constituency(question, story, sent_number)
         answer = find_answer_con(qcon, scon, question_text, question, story)
 
-    print("Extracted Answer:", answer + "\n\n")
+    # print("Extracted Answer:", answer + "\n\n")
     return answer.lower().strip()
 
 
