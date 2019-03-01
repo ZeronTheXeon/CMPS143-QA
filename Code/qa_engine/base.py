@@ -1,20 +1,19 @@
-
 import pandas as pd
 from nltk.parse import DependencyGraph
 from nltk.tree import Tree
 from collections import defaultdict
 
+HW = 7
 DATA_DIR = "data/"
-QUESTION_FILE = "hw6-questions.tsv"
-ANSWER_FILE = "hw6-answers.tsv"
-STORIES_FILE = "hw6-stories.tsv"
+QUESTION_FILE = "hw{}-questions.tsv".format(HW)
+ANSWER_FILE = "hw{}-answers.tsv".format(HW)
+STORIES_FILE = "hw{}-stories.tsv".format(HW)
 
-RESPONSE_FILE = "hw6-responses.tsv"
-EVAL_RESPONSE_FILE = "hw6-responses.tsv"
+RESPONSE_FILE = "hw{}-responses.tsv".format(HW)
+EVAL_RESPONSE_FILE = "hw{}-eval-responses.tsv".format(HW)
 
-EVAL_QUESTIONS = "hw6-eval-questions.tsv"
-EVAL_STORIES = "hw6-eval-stories.tsv"
-
+EVAL_QUESTIONS = "hw{}-eval-questions.tsv".format(HW)
+EVAL_STORIES = "hw{}-eval-stories.tsv".format(HW)
 
 import math
 
@@ -22,7 +21,6 @@ from collections import defaultdict
 
 
 def prepare_deps(raw_deps):
-
     if isinstance(raw_deps, float) and math.isnan(raw_deps):
         return []
     return [DependencyGraph(dep, top_relation_label="root") for dep in raw_deps.split("\n\n")
@@ -85,25 +83,20 @@ class QABase(object):
         self._questions = prepare_questions(pd.read_csv(DATA_DIR + qstn_file, sep="\t"))
         self._answers = {q["qid"]: "" for q in self._questions.values()}
 
-
     @staticmethod
     def answer_question(question, story):
         raise NotImplemented
 
-
     def get_question(self, qid):
         return self._questions.get(qid)
 
-
     def get_story(self, sid):
         return self._stories.get(sid)
-
 
     def run(self):
         for qid, q in self._questions.items():
             a = self.answer_question(q, self._stories.get(q["sid"]))
             self._answers[qid] = {"answer": a, "qid": qid}
-
 
     def save_answers(self, fname=None):
         if fname is None:
@@ -113,6 +106,3 @@ class QABase(object):
                 fname = RESPONSE_FILE
         df = pd.DataFrame([a for a in self._answers.values()])
         df.to_csv(fname, sep="\t", index=False)
-
-
-
