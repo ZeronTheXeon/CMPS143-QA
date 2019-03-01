@@ -192,25 +192,30 @@ def find_answer_con(qcon, scon, question, q, s):
     elif word == "how":
         pattern = nltk.ParentedTree.fromstring("(VP (*) (PP))")
         sub_pattern = nltk.ParentedTree.fromstring("(PP)")
-   
+    else:
+        pattern = nltk.ParentedTree.fromstring("(VP (*) (PP))")
+        sub_pattern = nltk.ParentedTree.fromstring("(PP)")
+
     sub_tree = constit.pattern_matcher(pattern, scon)
-    
-    if sub_tree == None:
+
+    if sub_tree is None:
         answer = get_answer(q, s, True)
         return answer
 
-
     sub_tree_2 = constit.pattern_matcher(sub_pattern, sub_tree)
-    answer =  " ".join(sub_tree_2.leaves())
+    if sub_tree_2 is None:
+        answer = get_answer(q, s, True)
+        return answer
+
+    answer = " ".join(sub_tree_2.leaves())
     return answer
-
-
 
 
 def get_answer(question, story, fail=False):
     """
     :param question: dict
     :param story: dict
+    :param fail: bool True if answer couldnt be found in cons
     :return: str
 
 
@@ -245,21 +250,18 @@ def get_answer(question, story, fail=False):
     ###     End of Your Code         ###
     question_text, answer_text, sent_number = get_answer_sentence(question, story)
 
-    
-    if fail == False:
+    # part 2 with dependcy
+    # qdep, sdep = get_dependencies(question, story, sent_number)
+    # answer = depend.find_answer(qgraph, sgraph)
+
+    if fail:
+        answer = get_answer_phrase(question_text, answer_text)
+    else:
         qcon, scon = get_constituency(question, story, sent_number)
         answer = find_answer_con(qcon, scon, question_text, question, story)
 
-    #part 2 with dependcy 
-    #qdep, sdep = get_dependencies(question, story, sent_number)
-    #answer = depend.find_answer(qgraph, sgraph)
-
-    if fail == True:
-        answer = get_answer_phrase(question_text, answer_text)
-   
-    
     print("Extracted Answer:", answer + "\n\n")
-    return answer
+    return answer.lower().strip()
 
 
 #############################################################

@@ -16,8 +16,9 @@ def get_sentences(text):
     sentences = nltk.sent_tokenize(text)
     sentences = [nltk.word_tokenize(sent) for sent in sentences]
     sentences = [nltk.pos_tag(sent) for sent in sentences]
-    
-    return sentences	
+
+    return sentences
+
 
 def get_bow(tagged_tokens, stopwords):
     wordnet_lemmatizer = WordNetLemmatizer()
@@ -32,11 +33,13 @@ def get_bow(tagged_tokens, stopwords):
 
     return words
 
+
 def find_phrase(tagged_tokens, qbow):
     for i in range(len(tagged_tokens) - 1, 0, -1):
         word = (tagged_tokens[i])[0]
         if word in qbow:
-            return tagged_tokens[i+1:]
+            return tagged_tokens[i + 1:]
+
 
 # qtokens: is a list of pos tagged question tokens with SW removed
 # sentences: is a list of pos tagged story sentences
@@ -44,31 +47,31 @@ def find_phrase(tagged_tokens, qbow):
 def baseline(qtokens, sentences, stopwords):
     # Collect all the candidate answers
     answers = []
-    for sent in sentences:
+    for i in range(len(sentences)):
+        sent = sentences[i]
         # A list of all the word tokens in the sentence
         sbow = get_bow(sent, stopwords)
         qbow = get_bow(qtokens, stopwords)
-        
+
         # Count the # of overlapping words between the Q and the A
         # & is the set intersection operator
         overlap = len(qbow & sbow)
-        if overlap > 0:
-            # print(sbow)
-            pass
-        
-        answers.append((overlap, sent))
-        
+        # if overlap > 0:
+        #     print(sbow)
+
+        answers.append((overlap, sent, i))  # this may be i + 1
+
     # Sort the results by the first element of the tuple (i.e., the count)
     # Sort answers from smallest to largest by default, so reverse it
     answers = sorted(answers, key=operator.itemgetter(0), reverse=True)
 
     # Return the best answer
-    best_answer = (answers[0])[1]    
-    return best_answer
+    best_answer = answers[0][1]
+    best_sent_number = answers[0][2]
+    return best_answer, best_sent_number
 
 
 if __name__ == '__main__':
-
     question_id = "fables-01-1"
 
     driver = QABase()
