@@ -11,16 +11,16 @@ from qa_engine.base import QABase
 def matches(pattern, root):
     # Base cases to exit our recursion
     # If both nodes are null we've matched everything so far
-    if root is None and pattern is None: 
+    if root is None and pattern is None:
         return root
-        
+
     # We've matched everything in the pattern we're supposed to (we can ignore the extra
     # nodes in the main tree for now)
-    elif pattern is None:                
+    elif pattern is None:
         return root
-        
+
     # We still have something in our pattern, but there's nothing to match in the tree
-    elif root is None:                   
+    elif root is None:
         return None
 
     # A node in a tree can either be a string (if it is a leaf) or node
@@ -35,13 +35,14 @@ def matches(pattern, root):
         # If there is a match we need to check that all the children match
         # Minor bug (what happens if the pattern has more children than the tree)
         for pchild, rchild in zip(pattern, root):
-            match = matches(pchild, rchild) 
+            match = matches(pchild, rchild)
             if match is None:
-                return None 
+                return None
         return root
-    
+
     return None
-    
+
+
 def pattern_matcher(pattern, tree):
     for subtree in tree.subtrees():
         node = matches(pattern, subtree)
@@ -49,8 +50,8 @@ def pattern_matcher(pattern, tree):
             return node
     return None
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     driver = QABase()
     q = driver.get_question("fables-01-1")
     story = driver.get_story(q["sid"])
@@ -59,11 +60,11 @@ if __name__ == '__main__':
 
     # Create our pattern
     pattern = nltk.ParentedTree.fromstring("(VP (*) (PP))")
-    
+
     # # Match our pattern to the tree  
     subtree = pattern_matcher(pattern, tree)
-    # print(" ".join(subtree.leaves()))
-    
+    print(" ".join(subtree.leaves()))
+
     # create a new pattern to match a smaller subset of subtree
     pattern = nltk.ParentedTree.fromstring("(PP)")
 
