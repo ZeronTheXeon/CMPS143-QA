@@ -179,9 +179,9 @@ def find_answer_con(qcon, scon, question, q, s):
         pattern = nltk.ParentedTree.fromstring("(VP (*) (PP))")
         sub_pattern = nltk.ParentedTree.fromstring("(PP)")
     elif word == "where":
-        # AVERAGE RECALL =    0.6739
-        # AVERAGE PRECISION = 0.4977
-        # AVERAGE F-MEASURE = 0.5282
+        # AVERAGE RECALL =    0.6700
+        # AVERAGE PRECISION = 0.5086
+        # AVERAGE F-MEASURE = 0.5317
         # if "to" in question[:15]:
         #     pattern = nltk.ParentedTree.fromstring("(TO (*))")
         #     sub_pattern = nltk.ParentedTree.fromstring("(LOC)")
