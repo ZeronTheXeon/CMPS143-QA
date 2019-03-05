@@ -170,14 +170,23 @@ def find_answer_con(qcon, scon, question, q, s):
         sub_pattern = nltk.ParentedTree.fromstring("(NP)")
     elif word == "what":
         pattern = nltk.ParentedTree.fromstring("(VP)")
-        sub_pattern = nltk.ParentedTree.fromstring("(VP)")
-    elif word == "did":
+        sub_pattern = nltk.ParentedTree.fromstring("(NP)")
+    elif word == "did" or word == "does":
+        if "no" in question:
+            return "no"
         return "yes"
     elif word == "had":
+        if "no" in question:
+            return "yes"
         return "no"
     elif word == "when":
-        pattern = nltk.ParentedTree.fromstring("(VP (*) (PP))")
-        sub_pattern = nltk.ParentedTree.fromstring("(PP)")
+        # mc500.train.23.1 has WHAVP, please investigate
+        if constit.pattern_matcher("(WHAVP)", qcon) is not None:
+            pattern = nltk.ParentedTree.fromstring("(VP (*) (NP))")
+            sub_pattern = nltk.ParentedTree.fromstring("(NP)")
+        else:
+            pattern = nltk.ParentedTree.fromstring("(VP (*) (PP))")
+            sub_pattern = nltk.ParentedTree.fromstring("(PP)")
     elif word == "where":
         # AVERAGE RECALL =    0.6700
         # AVERAGE PRECISION = 0.5086
@@ -186,10 +195,10 @@ def find_answer_con(qcon, scon, question, q, s):
         #     pattern = nltk.ParentedTree.fromstring("(TO (*))")
         #     sub_pattern = nltk.ParentedTree.fromstring("(LOC)")
         # else:
-        # if "SINV" in str(scon):
-        #     pattern = nltk.ParentedTree.fromstring("(PP)")
-        #     sub_pattern = nltk.ParentedTree.fromstring("(PP)")
-        # else:
+        if constit.pattern_matcher("(SINV)", scon) is not None:
+            pattern = nltk.ParentedTree.fromstring("(PP)")
+            sub_pattern = nltk.ParentedTree.fromstring("(PP)")
+        else:
             pattern = nltk.ParentedTree.fromstring("(VP (*) (PP))")
             sub_pattern = nltk.ParentedTree.fromstring("(NP)")
     elif word == "why":
@@ -199,8 +208,8 @@ def find_answer_con(qcon, scon, question, q, s):
         pattern = nltk.ParentedTree.fromstring("(VP)")
         sub_pattern = nltk.ParentedTree.fromstring("(RB)")
     else:
-        pattern = nltk.ParentedTree.fromstring("(VP (*) (PP))")
-        sub_pattern = nltk.ParentedTree.fromstring("(PP)")
+        pattern = nltk.ParentedTree.fromstring("(VP (*))")
+        sub_pattern = nltk.ParentedTree.fromstring("(*)")
 
     sub_tree = constit.pattern_matcher(pattern, scon)
 
@@ -258,6 +267,7 @@ def get_answer(question, story, fail=False):
     ###     End of Your Code         ###
     question_text, answer_text, sent_number = get_answer_sentence(question, story)
 
+    # print("For question", question_text, "got sentence", answer_text)
     # part 2 with dependcy
     # qdep, sdep = get_dependencies(question, story, sent_number)
     # answer = depend.find_answer(qgraph, sgraph)
@@ -267,6 +277,16 @@ def get_answer(question, story, fail=False):
     else:
         qcon, scon = get_constituency(question, story, sent_number)
         answer = find_answer_con(qcon, scon, question_text, question, story)
+
+    (word, rest) = question_text.split(maxsplit=1)
+    word = word.lower()
+    if word == "how":
+        question_words = question_text.lower()
+        question_words = question_words.split()
+        answer_words = answer.split()
+        print(question_words, answer_words)
+        resultWords = [word for word in answer_words if word.lower() not in question_words]
+        answer = ' '.join(resultWords)
 
     # print("Extracted Answer:", answer + "\n\n")
     return answer.lower().strip()

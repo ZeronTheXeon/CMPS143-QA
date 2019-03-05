@@ -6,5 +6,7 @@ Team Members:
 ## Notes for grader
 - Please run with evaluate set to True to receive eval
 answers.
+- Dependency parsing was not used for this assignment,
+    did not work as effectively as we hoped.
 - All code files are in the directory Code.
 A question answering program for CMPS143-W19.
