@@ -111,7 +111,7 @@ def get_answer_sentence(question, story):
     text = base.get_sentences(text)
 
     # Use stopwords instead of stopwords1 when using chunking and not depend trees
-    answer, sent_number = base.baseline(question_sent[0], text, stopwords1)
+    answer, sent_number = base.baseline_wordnet(question_sent[0], text, stopwords1)
 
     answer_text = ""
     for (x, y) in answer:
@@ -287,7 +287,6 @@ def get_answer(question, story, fail=False):
         print(question_words, answer_words)
         resultWords = [word for word in answer_words if word.lower() not in question_words]
         answer = ' '.join(resultWords)
-
     # print("Extracted Answer:", answer + "\n\n")
     return answer.lower().strip()
 
