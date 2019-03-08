@@ -1,9 +1,9 @@
 import pandas as pd
+import math
 from nltk.parse import DependencyGraph
 from nltk.tree import Tree
-from collections import defaultdict
 
-HW = 7
+HW = 8
 DATA_DIR = "data/"
 QUESTION_FILE = "hw{}-questions.tsv".format(HW)
 ANSWER_FILE = "hw{}-answers.tsv".format(HW)
@@ -14,10 +14,6 @@ EVAL_RESPONSE_FILE = "hw{}-eval-responses.tsv".format(HW)
 
 EVAL_QUESTIONS = "hw{}-eval-questions.tsv".format(HW)
 EVAL_STORIES = "hw{}-eval-stories.tsv".format(HW)
-
-import math
-
-from collections import defaultdict
 
 
 def prepare_deps(raw_deps):
