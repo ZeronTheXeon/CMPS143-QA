@@ -16,11 +16,6 @@ from nltk.corpus import wordnet as wn
 DATA_DIR = "./wordnet"
 
 
-
-
-
-
-
 # The standard NLTK pipeline for POS tagging a document
 def get_sentences(text):
     sentences = nltk.sent_tokenize(text)
@@ -31,11 +26,10 @@ def get_sentences(text):
 
 
 def get_bow(tagged_tokens, stopwords):
-
     noun_ids = load_wordnet_ids("{}/{}".format(DATA_DIR, "Wordnet_nouns.csv"))
     verb_ids = load_wordnet_ids("{}/{}".format(DATA_DIR, "Wordnet_verbs.csv"))
     wordnet_lemmatizer = WordNetLemmatizer()
-    words = [set([t[0].lower() for t in tagged_tokens if t[0].lower() not in stopwords])]
+    # words = [set([t[0].lower() for t in tagged_tokens if t[0].lower() not in stopwords])]
     words = set()
     for x in tagged_tokens:
         if x[0].lower() not in stopwords:
@@ -83,52 +77,40 @@ def baseline(qtokens, sentences, stopwords):
     best_sent_number = answers[0][2]
     return best_answer, best_sent_number
 
+
 def load_wordnet_ids(filename):
     file = open(filename, 'r')
-    if "noun" in filename: type = "noun"
-    else: type = "verb"
+    word_type = "noun" if "noun" in filename else "verb"
+
     csvreader = csv.DictReader(file, delimiter=",", quotechar='"')
     word_ids = defaultdict()
     for line in csvreader:
-        word_ids[line['synset_id']] = {'synset_offset': line['synset_offset'], 'story_'+type: line['story_'+type], 'stories': line['stories']}
+        word_ids[line['synset_id']] = {'synset_offset': line['synset_offset'],
+                                       'story_' + word_type: line['story_' + word_type],
+                                       'stories': line['stories']}
     return word_ids
 
+
+noun_ids = load_wordnet_ids("{}/{}".format(DATA_DIR, "Wordnet_nouns.csv"))
+verb_ids = load_wordnet_ids("{}/{}".format(DATA_DIR, "Wordnet_verbs.csv"))
+
+
 def get_bow_wordnet(tagged_tokens, stopwords):
-
-    noun_ids = load_wordnet_ids("{}/{}".format(DATA_DIR, "Wordnet_nouns.csv"))
-    verb_ids = load_wordnet_ids("{}/{}".format(DATA_DIR, "Wordnet_verbs.csv"))
-
     wordnet_lemmatizer = WordNetLemmatizer()
-    words = [set([t[0].lower() for t in tagged_tokens if t[0].lower() not in stopwords])]
+    # words = set([t[0].lower() for t in tagged_tokens if t[0].lower() not in stopwords])
     words = set()
     for x in tagged_tokens:
         if x[0].lower() not in stopwords:
-            if "VB" in x[1]:
-                new_words = []
-                temp = wordnet_lemmatizer.lemmatize(x[0].lower(), pos='v')
-                verb_synset = wn.synsets(temp)
-                for syn in verb_synset:
-                    new_words.append(syn.name()[0:syn.name().index(".")])
-                    verb_hypernym = syn.hypernyms()
-                    for hyp in verb_hypernym:
-                        new_words.append(hyp.name()[0:hyp.name().index(".")])
-                for x in new_words:
-                    words.add(x)
-                #word.add(new_words)
-
-            else:
-                new_words = []
-                temp = wordnet_lemmatizer.lemmatize(x[0].lower(), pos='n')
-                noun_synset = wn.synsets(temp)
-                for syn in noun_synset:
-                    new_words.append(syn.name()[0:syn.name().index(".")])
-                    noun_hypernym = syn.hypernyms()
-                    for hyp in noun_hypernym:
-                        new_words.append(hyp.name()[0:hyp.name().index(".")])
-                for x in new_words:
-                    words.add(x)
-                #word.add(new_words)
-
+            new_words = []
+            temp = wordnet_lemmatizer.lemmatize(x[0].lower(), pos='v' if "VB" in x[1] else 'n')
+            word_synsets = wn.synsets(temp)
+            for syn in word_synsets:
+                new_words.append(syn.name()[0:syn.name().index(".")])
+                word_hypernyms = syn.hypernyms()
+                for hyp in word_hypernyms:
+                    new_words.append(hyp.name()[0:hyp.name().index(".")])
+            for word in new_words:
+                words.add(word)
     return words
 
 
@@ -160,9 +142,6 @@ def baseline_wordnet(qtokens, sentences, stopwords):
     best_answer = answers[0][1]
     best_sent_number = answers[0][2]
     return best_answer, best_sent_number
-
-
-
 
 
 if __name__ == '__main__':
